@@ -6,9 +6,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DoomLauncher
 {
@@ -49,7 +46,8 @@ namespace DoomLauncher
             if (options == null)
             {
                 int limit = options != null && options.Limit.HasValue ? options.Limit.Value : 25;
-                return GetFiles(string.Format("action=latestfiles&limit={0}", limit), "file");
+                string query = $"action=search&field=filename&query=zip&sort=date&dir=desc";
+                return GetFiles(query, "file").Take(limit);
             }
             else
             {

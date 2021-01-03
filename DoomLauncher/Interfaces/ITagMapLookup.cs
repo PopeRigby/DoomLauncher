@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoomLauncher.Interfaces
 {
     public interface ITagMapLookup
     {
-        void Refresh();
+        event EventHandler<ITagData[]> TagMappingChanged;
+        void Refresh(ITagData[] tags);
+        void RemoveGameFile(IGameFile gameFile);
         ITagData[] GetTags(IGameFile gameFile);
     }
 }

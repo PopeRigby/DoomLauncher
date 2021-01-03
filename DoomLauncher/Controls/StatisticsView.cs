@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using DoomLauncher.Interfaces;
-using System.Globalization;
-using System.Reflection;
+﻿using DoomLauncher.Interfaces;
 using Equin.ApplicationFramework;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace DoomLauncher
 {
@@ -105,6 +100,10 @@ namespace DoomLauncher
             Clipboard.SetDataObject(dgvMain.GetClipboardContent(), true);
         }
 
+        public bool Export() => false;
+
+        public bool ExportAll() => false;
+
         private IStatsData GetStatsFromGridRow(DataGridViewRow row)
         {
             StatsBind bind = ((ObjectView<StatsBind>)row.DataBoundItem).Object as StatsBind;
@@ -140,7 +139,7 @@ namespace DoomLauncher
         public IGameFile GameFile { get; set; }
 
         public bool DeleteAllowed { get { return true; } }
-        public bool CopyAllowed { get { return false; } }
+        public bool CopyOrExportAllowed { get { return false; } }
         public bool NewAllowed { get { return false; } }
         public bool EditAllowed { get { return false; } }
         public bool ViewAllowed { get { return false; } }

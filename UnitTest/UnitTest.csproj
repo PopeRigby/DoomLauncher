@@ -73,7 +73,6 @@
     <Compile Include="Tests\TestLoadFiles.cs" />
     <Compile Include="Tests\TestBoomStats.cs" />
     <Compile Include="Tests\TestZdoomStats.cs" />
-    <Compile Include="Tests\TestCnDoomStats.cs" />
     <Compile Include="Tests\TestZdlParser.cs" />
     <Compile Include="Tests\TestCldDemoParser.cs" />
     <Compile Include="Tests\TestLauncherPath.cs" />
@@ -84,6 +83,8 @@
     <Compile Include="Tests\TestDsgSave.cs" />
     <Compile Include="Tests\TestStats.cs" />
     <Compile Include="Tests\TestChocolateDoomStats.cs" />
+    <Compile Include="Tests\TestUpdateInfo.cs" />
+    <Compile Include="Tests\TestGameProfile.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DoomLauncher\DoomLauncher.csproj">

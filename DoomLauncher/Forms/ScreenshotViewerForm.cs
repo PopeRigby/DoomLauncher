@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DoomLauncher.Forms
@@ -14,11 +9,18 @@ namespace DoomLauncher.Forms
     public partial class ScreenshotViewerForm : Form
     {
         private string[] m_images = new string[] { };
-        private int m_index = 0;
+        private int m_index;
+        private bool m_slideshow;
+
+        private SlideShowPictureBox pbMain = new SlideShowPictureBox();
 
         public ScreenshotViewerForm()
         {
             InitializeComponent();
+            pbMain.Dock = DockStyle.Fill;
+            tblMain.Controls.Add(pbMain, 0, 0);
+
+            btnSave.Image = Icons.Save;
 
             KeyPreview = true;
             KeyUp += ScreenshotViewerForm_KeyUp;
@@ -38,15 +40,11 @@ namespace DoomLauncher.Forms
             //this is to set the focus of the left/right buttons
             if (!msg.HWnd.Equals(this.Handle) && (keyData == Keys.Left || keyData == Keys.Right))
             {
-                switch (keyData)
-                {
-                    case Keys.Right:
-                        btnNext.Focus();
-                        break;
-                    case Keys.Left:
-                        btnPrev.Focus();
-                        break;
-                }
+                if (keyData == Keys.Right)
+                    btnNext.Focus();
+                else if (keyData == Keys.Left)
+                    btnPrev.Focus();
+
                 return true;
             }
 
@@ -108,10 +106,13 @@ namespace DoomLauncher.Forms
 
         private void SetImage()
         {
-            if (pbMain.Image != null)
-                pbMain.Image.Dispose();
-            pbMain.Image = Image.FromFile(GetImageFilename());
-            Text = string.Format("Screenshot Viewer - {0}/{1}", m_index + 1, m_images.Length);
+            SetSlideshow(false);
+
+            if (m_images.Length > 0)
+            {
+                pbMain.SetImage(Image.FromFile(GetImageFilename()));
+                Text = string.Format("Screenshot Viewer - {0}/{1}", m_index + 1, m_images.Length);
+            }
         }
 
         private string GetImageFilename()
@@ -159,6 +160,30 @@ namespace DoomLauncher.Forms
                     MessageBox.Show(this, "Unable to save file.", "Unable to Save", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private void btnSlideshow_Click(object sender, EventArgs e)
+        {
+            SetSlideshow(!m_slideshow);
+
+            if (m_slideshow)
+            {
+                Text = "Slideshow";
+                pbMain.SetImages(m_images.ToList(), m_index);
+            }
+            else
+            {
+                SetImage();
+            }
+        }
+
+        private void SetSlideshow(bool set)
+        {
+            m_slideshow = set;
+            if (set)
+                btnSlideshow.BackColor = SystemColors.Highlight;
+            else
+                btnSlideshow.BackColor = SystemColors.Control;
         }
     }
 }

@@ -1,23 +1,26 @@
 ﻿using DoomLauncher.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace DoomLauncher.DataSources
 {
-    public class GameFile : IGameFile, ICloneable
+    public class GameFile : IGameFile, IGameProfile, ICloneable
     {
+        public static string[] GetMaps(IGameFile gameFile) => gameFile.Map.Split(new string[] { ", ", "," }, StringSplitOptions.RemoveEmptyEntries);
+
         public GameFile()
         {
             FileName = Title = Author = Description = Thumbnail = Comments = Map = SettingsMap = SettingsSkill = SettingsExtraParams = SettingsFiles
                 = SettingsSpecificFiles = string.Empty;
+            Name = "Default Profile";
             SettingsStat = true;
+            GameProfileID = -1;
         }
 
         public int? GameFileID { get; set; }
+        public string FullFileName { get; set; }
         public virtual string FileName { get; set; }
+        public string FileNameNoPath => Path.GetFileName(FileName);
         public virtual string Title { get; set; }
         public virtual string Author { get; set; }
         public virtual DateTime? ReleaseDate { get; set; }
@@ -32,6 +35,8 @@ namespace DoomLauncher.DataSources
         public DateTime? LastPlayed { get; set; }
         public DateTime? Downloaded { get; set; }
 
+        public int GameProfileID { get; set; }
+        public string Name { get; set; }
         public string SettingsMap { get; set; }
         public string SettingsSkill { get; set; }
         public string SettingsExtraParams { get; set; }
@@ -40,25 +45,31 @@ namespace DoomLauncher.DataSources
         public string SettingsFilesIWAD { get; set; }
         public string SettingsSpecificFiles { get; set; }
         public bool SettingsStat { get; set; }
+        public bool SettingsSaved { get; set; }
+        public int? SettingsGameProfileID { get; set; }
 
         public int MinutesPlayed { get; set; }
         public virtual int FileSizeBytes { get; set; }
+
+        public bool IsUnmanaged() => Path.IsPathRooted(FileName);
 
         public object Clone()
         {
             GameFile gameFile = new GameFile();
             var properties = gameFile.GetType().GetProperties();
             foreach (var prop in properties)
-                prop.SetValue(gameFile, prop.GetValue(this));
+            {
+                if (prop.GetSetMethod() != null)
+                    prop.SetValue(gameFile, prop.GetValue(this));
+            }
+
             return gameFile;
         }
 
         public override bool Equals(object obj)
         {
-            IGameFile check = obj as IGameFile;
-
-            if (check != null)
-                return ((IGameFile)obj).FileName == FileName;
+            if (obj is IGameFile gameFile)
+                return gameFile.FileName == FileName;
 
             return false;
         }

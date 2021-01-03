@@ -1,6 +1,6 @@
-﻿using System;
+﻿using DoomLauncher;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DoomLauncher;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -43,6 +43,8 @@ namespace UnitTest.Tests
             File.Copy(Path.Combine("Resources", file), Path.Combine(s_filedir, file));
             handler.Execute(new string[] { "uroburos.zip" });
 
+            Assert.AreEqual(1, handler.AddedGameFiles.Count);
+            Assert.AreEqual(file, handler.AddedGameFiles[0].FileName);
             Assert.AreEqual(1, handler.DbDataSource.GetGameFilesCount());
             var gameFile = handler.DbDataSource.GetGameFiles().First();
 
@@ -66,20 +68,21 @@ namespace UnitTest.Tests
 
             handler.Execute(files);
 
+            Assert.AreEqual(2, handler.AddedGameFiles.Count);
             Assert.AreEqual(2, handler.DbDataSource.GetGameFilesCount());
 
             var gameFiles = handler.DbDataSource.GetGameFiles();
-            var gameFile = gameFiles.Where(x => x.FileName == files[0]).First();
+            var gameFile = gameFiles.First(x => x.FileName == files[0]);
 
-            Assert.AreEqual(gameFile.FileName, "uroburos.zip");
-            Assert.AreEqual(gameFile.Map, "MAP01");
+            Assert.AreEqual("uroburos.zip", gameFile.FileName);
+            Assert.AreEqual("MAP01", gameFile.Map);
             Assert.IsFalse(string.IsNullOrEmpty(gameFile.Title));
             Assert.IsFalse(string.IsNullOrEmpty(gameFile.Author));
             Assert.IsFalse(string.IsNullOrEmpty(gameFile.Description));
             Assert.IsNotNull(gameFile.ReleaseDate);
             Assert.IsNotNull(gameFile.Downloaded);
 
-            gameFile = gameFiles.Where(x => x.FileName == files[1]).First();
+            gameFile = gameFiles.First(x => x.FileName == files[1]);
             Assert.AreEqual("pyrrhic.zip", gameFile.FileName);
             Assert.AreEqual("MAP01, MAP02, MAP03, MAP04, MAP05, MAP06, MAP07, MAP08, MAP09, MAP10, MAP11, MAP12, MAP13, MAP14, MAP15", gameFile.Map);
             Assert.IsFalse(string.IsNullOrEmpty(gameFile.Title));
@@ -132,6 +135,7 @@ namespace UnitTest.Tests
             File.Copy(Path.Combine("Resources", file), Path.Combine(s_filedir, file));
             handler.Execute(new string[] { file });
 
+            Assert.AreEqual(1, handler.AddedGameFiles.Count);
             Assert.AreEqual(1, handler.DbDataSource.GetGameFilesCount());
             var gameFile = handler.DbDataSource.GetGameFiles().First();
 
@@ -144,6 +148,9 @@ namespace UnitTest.Tests
             File.Copy(Path.Combine("Resources", "uroburos.zip"), Path.Combine(s_filedir, file), true);
             handler.Execute(new string[] { file });
 
+            Assert.AreEqual(0, handler.AddedGameFiles.Count);
+            Assert.AreEqual(1, handler.UpdatedGameFiles.Count);
+            Assert.AreEqual("joymaps1.zip", handler.UpdatedGameFiles[0].FileName);
             Assert.AreEqual(1, handler.DbDataSource.GetGameFilesCount());
             gameFile = handler.DbDataSource.GetGameFiles().First();
 
@@ -196,7 +203,7 @@ namespace UnitTest.Tests
         private static SyncLibraryHandler CreateSyncLibraryHandler()
         {
             return new SyncLibraryHandler(TestUtil.CreateAdapter(), CreateDirectoryAdapater(), new LauncherPath(s_filedir), 
-                new LauncherPath(s_tempdir), new string[] {"dd/M/yy", "dd/MM/yyyy", "dd MMMM yyyy" });
+                new LauncherPath(s_tempdir), new string[] {"dd/M/yy", "dd/MM/yyyy", "dd MMMM yyyy" }, FileManagement.Managed);
         }
 
         private static DirectoryDataSourceAdapter CreateDirectoryAdapater()

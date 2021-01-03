@@ -1,11 +1,9 @@
 ﻿using DoomLauncher.DataSources;
 using DoomLauncher.Interfaces;
+using DoomLauncher.SourcePort;
 using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
-using System.Linq;
-using System.IO.Compression;
-using DoomLauncher.SourcePort;
 
 namespace DoomLauncher
 {
@@ -37,7 +35,7 @@ namespace DoomLauncher
 
                 GameFilePlayAdapter adapter = new GameFilePlayAdapter();
                 StringBuilder sb = new StringBuilder();
-                adapter.HandleGameFile(gameFile, sb, m_config.GameFileDirectory, m_config.TempDirectory, 
+                adapter.HandleGameFile(gameFile, sb, m_config.TempDirectory, 
                     new GenericSourcePort(m_utility), files); //this checks File.Exists and might not be same file
 
                 try

@@ -9,10 +9,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace DoomLauncher
 {
@@ -75,6 +71,14 @@ namespace DoomLauncher
                 ExecuteUpdate(Pre_2_6_3_2, AppVersion.Version_2_6_3_2);
                 ExecuteUpdate(Pre_2_6_4_1, AppVersion.Version_2_6_4_1);
                 ExecuteUpdate(Pre_2_6_4_1_Update, AppVersion.Version_2_6_4_1_Update1);
+                ExecuteUpdate(Pre_2_7_0_0, AppVersion.Version_2_7_0_0);
+                ExecuteUpdate(Pre_2_8_0_0, AppVersion.Version_2_8_0_0);
+                ExecuteUpdate(Pre_2_8_0_0_1, AppVersion.Version_2_8_0_0_1);
+                ExecuteUpdate(Pre_Version_3_1_0, AppVersion.Version_3_1_0);
+                ExecuteUpdate(Pre_Version_3_2_0, AppVersion.Version_3_2_0);
+                ExecuteUpdate(Pre_Version_3_2_0_Update1, AppVersion.Version_3_2_0_Update1);
+                ExecuteUpdate(Pre_Version_3_2_0_Update2, AppVersion.Version_3_2_0_Update2);
+                ExecuteUpdate(Pre_Version_3_2_0_Update3, AppVersion.Version_3_2_0_Update3);
             }
         }
 
@@ -169,13 +173,13 @@ namespace DoomLauncher
 
                 DataAccess.ExecuteNonQuery(query);
 
-                DirectoryInfo di = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(),  ConfigurationManager.AppSettings["GameFileDirectory"], "SaveGames"));
+                DirectoryInfo di = new DirectoryInfo(Path.Combine(LauncherPath.GetDataDirectory(), ConfigurationManager.AppSettings["GameFileDirectory"], "SaveGames"));
                 if (!di.Exists)
                     di.Create();
             }
 
             dt = DataAccess.ExecuteSelect("pragma table_info(Files);").Tables[0];
-            
+
             if (!dt.Select("name = 'OriginalFileName'").Any())
             {
                 string query = @"alter table Files add column 'OriginalFileName' TEXT;
@@ -259,8 +263,8 @@ namespace DoomLauncher
         [Conditional("RELEASE")]
         private static void CreateDatabaseBackup()
         {
-            FileInfo fi = new FileInfo(DbDataSourceAdapter.GetDatabaseFileName());
-            fi.CopyTo(string.Format("{0}_{1}.sqlite.bak", DbDataSourceAdapter.GetDatabaseFileName(), Guid.NewGuid().ToString()));
+            FileInfo fi = new FileInfo(DbDataSourceAdapter.DatabaseFileName);
+            fi.CopyTo(string.Format("{0}_{1}.sqlite.bak", DbDataSourceAdapter.DatabaseFileName, Guid.NewGuid().ToString()));
         }
 
         private void Pre_2_1_0()
@@ -327,9 +331,9 @@ namespace DoomLauncher
         private void Pre_2_3_0()
         {
             IEnumerable<IStatsData> stats = m_adapter.GetStats();
-            HashSet<IStatsData> statSet = new HashSet<IStatsData>(); 
+            HashSet<IStatsData> statSet = new HashSet<IStatsData>();
 
-            foreach(IStatsData stat in stats)
+            foreach (IStatsData stat in stats)
             {
                 if (!statSet.Contains(stat))
                     statSet.Add(stat);
@@ -349,7 +353,7 @@ namespace DoomLauncher
                 IEnumerable<IIWadData> iwads = m_adapter.GetIWads();
                 IEnumerable<IGameFile> gameFiles = m_adapter.GetGameFiles();
 
-                foreach(IIWadData iwad in iwads)
+                foreach (IIWadData iwad in iwads)
                 {
                     IGameFile find = gameFiles.FirstOrDefault(x => x.FileName.ToLower() == iwad.FileName.ToLower().Replace(".wad", ".zip"));
                     if (find != null)
@@ -377,7 +381,7 @@ namespace DoomLauncher
             foreach (string ext in saveExts)
             {
                 string[] files = Directory.GetFiles(m_appConfig.DemoDirectory.GetFullPath(), ext);
-                foreach(string file in files)
+                foreach (string file in files)
                 {
                     FileInfo fi = new FileInfo(file);
                     FileInfo fiTo = new FileInfo(Path.Combine(m_appConfig.SaveGameDirectory.GetFullPath(), fi.Name));
@@ -426,18 +430,17 @@ namespace DoomLauncher
             if (!dt.Select("name = 'SettingsFilesIWAD'").Any())
                 DataAccess.ExecuteNonQuery("alter table GameFiles add column 'SettingsFilesIWAD' TEXT;");
 
-            var adapter = DbDataSourceAdapter.CreateAdapter();
-            var gameFiles = adapter.GetGameFiles();
-            var ports = adapter.GetSourcePorts().ToDictionary(x => x.SourcePortID, x => x);
-            var iwads = adapter.GetIWads();
-            var gameFileIwads = adapter.GetGameFileIWads().ToDictionary(x => iwads.First(y => y.GameFileID == x.GameFileID.Value).IWadID, x => x);
+            var gameFiles = m_adapter.GetGameFiles();
+            var ports = m_adapter.GetSourcePorts().ToDictionary(x => x.SourcePortID, x => x);
+            var iwads = m_adapter.GetIWads();
+            var gameFileIwads = m_adapter.GetGameFileIWads().ToDictionary(x => iwads.First(y => y.GameFileID == x.GameFileID.Value).IWadID, x => x);
 
             foreach (var gameFile in gameFiles)
             {
                 if (!string.IsNullOrEmpty(gameFile.SettingsFiles))
                 {
-                    var files = Util.GetAdditionalFiles(adapter, gameFile).Select(x => x.FileName);
-                    FileLoadHandlerLegacy filehandler = new FileLoadHandlerLegacy(adapter, gameFile);
+                    var files = Util.GetAdditionalFiles(m_adapter, (GameFile)gameFile).Select(x => x.FileName);
+                    FileLoadHandlerLegacy filehandler = new FileLoadHandlerLegacy(m_adapter, gameFile);
                     filehandler.CalculateAdditionalFiles(GetDictionaryData<IGameFile>(gameFile.IWadID, gameFileIwads),
                         GetDictionaryData<ISourcePortData>(gameFile.SourcePortID, ports));
 
@@ -445,9 +448,9 @@ namespace DoomLauncher
                     var iwadFiles = filehandler.GetIWadFiles().Select(x => x.FileName).Where(x => files.Contains(x)).Except(sourcePortFiles);
 
                     gameFile.SettingsFilesSourcePort = string.Join(";", sourcePortFiles.ToArray());
-                    gameFile.SettingsFilesIWAD = string.Join(";", iwadFiles.ToArray());     
-                           
-                    adapter.UpdateGameFile(gameFile);
+                    gameFile.SettingsFilesIWAD = string.Join(";", iwadFiles.ToArray());
+
+                    m_adapter.UpdateGameFile(gameFile);
                 }
             }
         }
@@ -471,17 +474,181 @@ namespace DoomLauncher
 
         private void Pre_2_6_4_1_Update()
         {
-            var adapter = DbDataSourceAdapter.CreateAdapter();
-            var sourcePorts = adapter.GetSourcePorts();
-            var stats = adapter.GetStats();
+            var sourcePorts = m_adapter.GetSourcePorts();
+            var stats = m_adapter.GetStats();
 
-            foreach(var stat in stats)
+            foreach (var stat in stats)
             {
                 if (!sourcePorts.Any(x => x.SourcePortID == stat.SourcePortID))
                 {
                     stat.SourcePortID = -1;
-                    adapter.UpdateStats(stat);
+                    m_adapter.UpdateStats(stat);
                 }
+            }
+        }
+
+        private void Pre_2_7_0_0()
+        {
+            DataTable dt = DataAccess.ExecuteSelect("select name from sqlite_master where type='table' and name='GameProfiles';").Tables[0];
+
+            if (dt.Rows.Count == 0)
+            {
+                string query = @"CREATE TABLE 'GameProfiles' (
+	                    'GameProfileID'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        'GameFileID'	INTEGER NOT NULL,
+                        'SourcePortID'	INTEGER NOT NULL,
+                        'IWadID'	INTEGER NOT NULL,
+                        'Name'	TEXT NOT NULL,
+	                    'SettingsMap'	TEXT,
+	                    'SettingsSkill'	TEXT,
+	                    'SettingsExtraParams'	TEXT,
+	                    'SettingsFiles'	TEXT,
+	                    'SettingsFilesSourcePort'	TEXT,
+	                    'SettingsFilesIWAD'	TEXT,
+	                    'SettingsSpecificFiles'	TEXT,
+                        'SettingsStat'	INTEGER,
+                        'SettingsSaved' INTEGER);";
+
+                DataAccess.ExecuteNonQuery(query);
+            }
+
+            dt = DataAccess.ExecuteSelect("pragma table_info(GameFiles);").Tables[0];
+
+            if (!dt.Select("name = 'SettingsGameProfileID'").Any())
+                DataAccess.ExecuteNonQuery(@"alter table GameFiles add column 'SettingsGameProfileID' INTEGER;");
+
+            if (!dt.Select("name = 'SettingsSaved'").Any())
+            {
+                DataAccess.ExecuteNonQuery(@"alter table GameFiles add column 'SettingsSaved' INTEGER;");
+                DataAccess.ExecuteNonQuery("update GameFiles set SettingsSaved = 1 where SourcePortID is not null");
+                DataAccess.ExecuteNonQuery("update GameFiles set SettingsSaved = 0 where SourcePortID is null");
+            }
+        }
+
+        private void Pre_2_8_0_0()
+        {
+            ConfigurationData config = new ConfigurationData()
+            {
+                Name = "FileManagement",
+                Value = FileManagement.Managed.ToString(),
+                UserCanModify = false,
+            };
+
+            m_adapter.InsertConfiguration(config);
+        }
+
+        private void Pre_2_8_0_0_1()
+        {
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "GameFileViewType",
+                Value = GameFileViewType.TileView.ToString(),
+                UserCanModify = false,
+            });
+
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "ItemsPerPage",
+                Value = "30",
+                UserCanModify = false,
+            });
+        }
+
+        private void Pre_Version_3_1_0()
+        {
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "DeleteScreenshotsAfterImport",
+                Value = "false",
+                UserCanModify = true,
+                AvailableValues = "Yes;true;No;false"
+            });
+        }
+
+        private void Pre_Version_3_2_0()
+        {
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "LastSelectedTabIndex",
+                Value = "0",
+                UserCanModify = false,
+            });
+
+            DataTable dt = DataAccess.ExecuteSelect("pragma table_info(Tags);").Tables[0];
+
+            if (!dt.Select("name = 'ExcludeFromOtherTabs'").Any())
+            {
+                DataAccess.ExecuteNonQuery(@"alter table Tags add column 'ExcludeFromOtherTabs' INTEGER;");
+                DataAccess.ExecuteNonQuery("update Tags set ExcludeFromOtherTabs = 0");
+            }
+        }
+
+        private void Pre_Version_3_2_0_Update1()
+        {
+            DataTable dt = DataAccess.ExecuteSelect("pragma table_info(Tags);").Tables[0];
+
+            if (!dt.Select("name = 'Favorite'").Any())
+            {
+                DataAccess.ExecuteNonQuery(@"alter table Tags add column 'Favorite' INTEGER;");
+                DataAccess.ExecuteNonQuery("update Tags set Favorite = 0");
+            }
+
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "SplitTagSelect",
+                Value = "300",
+                UserCanModify = false,
+            });
+
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "TagSelectPinned",
+                Value = "False",
+                UserCanModify = false,
+            });
+
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "ShowTabHeaders",
+                Value = "true",
+                UserCanModify = true,
+                AvailableValues = "Yes;true;No;false"
+            });
+        }
+
+        private void Pre_Version_3_2_0_Update2()
+        {
+            m_adapter.InsertConfiguration(new ConfigurationData()
+            {
+                Name = "CopySaveFiles",
+                Value = "true",
+                UserCanModify = true,
+                AvailableValues = "Yes;true;No;false"
+            });
+
+            DataTable dt = DataAccess.ExecuteSelect("pragma table_info(SourcePorts);").Tables[0];
+
+            if (!dt.Select("name = 'AltSaveDirectory'").Any())
+                DataAccess.ExecuteNonQuery(@"alter table SourcePorts add column 'AltSaveDirectory' TEXT;");
+        }
+
+        private void Pre_Version_3_2_0_Update3()
+        {
+            IEnumerable<ISourcePortData> sourcePorts = m_adapter.GetSourcePorts();
+
+            foreach (ISourcePortData sourcePort in sourcePorts)
+            {
+                if (!sourcePort.SupportedExtensions.Contains(".pk3"))
+                    continue;
+                
+                sourcePort.SupportedExtensions = sourcePort.SupportedExtensions.Replace(".pk3", ".pk3,.ipk3");
+
+                List<DbParameter> parameters = new List<DbParameter>
+                {
+                    DataAccess.DbAdapter.CreateParameter("ext", sourcePort.SupportedExtensions),
+                    DataAccess.DbAdapter.CreateParameter("SourcePortID", sourcePort.SourcePortID)
+                };
+                DataAccess.ExecuteNonQuery("update SourcePorts set SupportedExtensions = @ext where SourcePortID = @SourcePortID", parameters);
             }
         }
 

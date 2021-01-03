@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoomLauncher
 {
@@ -13,6 +9,13 @@ namespace DoomLauncher
 
         public LauncherPath(string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                m_path = string.Empty;
+                m_fullPath = string.Empty;
+                return;
+            }
+
             if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 path += Path.DirectorySeparatorChar;
 
@@ -30,6 +33,16 @@ namespace DoomLauncher
                     m_path = m_path.Replace(current, string.Empty);
             }
         }
+
+        public static string GetDataDirectory()
+        {
+            if (IsInstalled())
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DoomLauncher");
+
+            return Directory.GetCurrentDirectory();
+        }
+
+        public static bool IsInstalled() => !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), DbDataSourceAdapter.DatabaseFileName)) && !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), DbDataSourceAdapter.InitDatabaseFileName));
 
         public string GetFullPath()
         {
@@ -49,8 +62,7 @@ namespace DoomLauncher
 
         public override bool Equals(object obj)
         {
-            LauncherPath path = obj as LauncherPath;
-            if (path != null)
+            if (obj is LauncherPath path)
                 return GetFullPath() == path.GetFullPath();
 
             return false;

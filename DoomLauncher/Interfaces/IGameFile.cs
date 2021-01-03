@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DoomLauncher.Interfaces
 {
@@ -9,6 +6,7 @@ namespace DoomLauncher.Interfaces
     {
         int? GameFileID { get; set; }
         string FileName { get; set; }
+        string FileNameNoPath { get; }
         string Title { get; set; }
         string Author { get; set; }
         DateTime? ReleaseDate { get; set; }
@@ -31,8 +29,12 @@ namespace DoomLauncher.Interfaces
         string SettingsFilesIWAD { get; set; }
         string SettingsSpecificFiles { get; set; }
         bool SettingsStat { get; set; }
+        bool SettingsSaved { get; set; }
+        int? SettingsGameProfileID { get; set; }
 
         int MinutesPlayed { get; set; }
         int FileSizeBytes { get; set; }
+
+        bool IsUnmanaged();
     }
 }

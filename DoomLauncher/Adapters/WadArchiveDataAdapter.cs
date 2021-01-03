@@ -4,16 +4,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 
 namespace DoomLauncher
 {
-    class WadArchiveDataAdapter : IDataSourceAdapter
+    class WadArchiveDataAdapter : IGameFileDataSourceAdapter
     {
         private string m_urlMD5 = "http://www.wad-archive.com/api/latest/";
         private string m_urlFilename = "http://www.wad-archive.com/wadseeker/";

@@ -1,13 +1,19 @@
 = Doom Launcher
 
-https://ci.appveyor.com/project/hobomaster22/doomlauncher[image:https://ci.appveyor.com/api/projects/status/github/hobomaster22/doomlauncher?svg=true[Build status]]
+https://ci.appveyor.com/project/hobomaster22/doomlauncher[image:https://ci.appveyor.com/api/projects/status/github/nstlaurent/doomlauncher?svg=true[Build status]]
+
+image:https://api.codacy.com/project/badge/Grade/f77deda96cfb4b90a201d09cb0014009[link="https://app.codacy.com/manual/nstlaurent/DoomLauncher?utm_source=github.com&utm_medium=referral&utm_content=nstlaurent/DoomLauncher&utm_campaign=Badge_Grade_Settings"]
 
 Doom Launcher is a _Doom_ frontend for Windows PC. Instead of being a
 simple utility to launch your files, it serves as database for all your
 _Doom_ engine games and mods. It can be compared to https://www.quaddicted.com/tools/quake_injector[Quake Injector],
 a popular tool for _Quake_.
 
-image::https://i.imgur.com/zRITrL2.png[Showcase]
+image::https://i.imgur.com/TIg4kNK.png[IWads Tile View Showcase]
+Large tile view for IWads tab. IWADs such as _Freedoom_ and _Heretic_ can be played with Doom Launcher.
+
+image::https://i.imgur.com/mYqC1QO.png[Custom Files Tile View Showcase]
+Large tile view for a custom tag named "Playing". Doom Launcher can play custom mapsets such as Eviternity, Back to Saturn X, Plutonia 2, and more!
 
 == Features
 
@@ -57,7 +63,7 @@ https://www.sonarlint.org/visualstudio/
 
 == Doom Launcher Links
 
-GitHub Repository: https://github.com/hobomaster22/DoomLauncher
+GitHub Repository: https://github.com/nstlaurent/DoomLauncher
 
 Doomworld Thread: https://www.doomworld.com/vb/doom-general/69346-doom-launcher-doom-frontend-database/
 

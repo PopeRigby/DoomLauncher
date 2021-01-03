@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DoomLauncher.Interfaces
+﻿namespace DoomLauncher.Interfaces
 {
     public interface ISourcePortData
     {
@@ -17,6 +11,7 @@ namespace DoomLauncher.Interfaces
         SourcePortLaunchType LaunchType { get; set; }
         string FileOption { get; set; }
         string ExtraParameters { get; set; }
+        LauncherPath AltSaveDirectory { get; set; }
         string GetFullExecutablePath();
     }
 }

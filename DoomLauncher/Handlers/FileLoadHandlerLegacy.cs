@@ -1,10 +1,7 @@
 ﻿using DoomLauncher.DataSources;
 using DoomLauncher.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoomLauncher.Handlers
 {
@@ -32,7 +29,7 @@ namespace DoomLauncher.Handlers
         {
             m_adapter = adapter;
             m_gameFile = gameFile;
-            SetAdditionalFiles(Util.GetAdditionalFiles(m_adapter, gameFile));
+            SetAdditionalFiles(Util.GetAdditionalFiles(m_adapter, (GameFile)gameFile));
         }
 
         public bool IsIWadFile(IGameFile gameFile)
@@ -137,7 +134,7 @@ namespace DoomLauncher.Handlers
             {
                 case AddFilesType.IWAD:
                     if (gameIwad != null)
-                        return Util.GetAdditionalFiles(m_adapter, gameIwad);
+                        return Util.GetAdditionalFiles(m_adapter, (GameFile)gameIwad);
                     break;
                 case AddFilesType.SourcePort:
                     if (sourcePort != null)

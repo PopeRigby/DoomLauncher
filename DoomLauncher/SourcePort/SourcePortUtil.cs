@@ -1,9 +1,5 @@
 ﻿using DoomLauncher.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoomLauncher.SourcePort
 {
@@ -19,6 +15,7 @@ namespace DoomLauncher.SourcePort
                 new CNDoomSourcePort(sourcePortData),
                 new ChocolateDoomSourcePort(sourcePortData),
                 new CrispyDoomSourcePort(sourcePortData),
+                new WoofSourcePort(sourcePortData),
                 new GenericSourcePort(sourcePortData)
             };
 

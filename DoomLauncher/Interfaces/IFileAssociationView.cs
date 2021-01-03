@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace DoomLauncher.Interfaces
 {
@@ -14,7 +9,7 @@ namespace DoomLauncher.Interfaces
         void ClearData();
 
         bool DeleteAllowed { get; }
-        bool CopyAllowed { get; }
+        bool CopyOrExportAllowed { get; }
         bool NewAllowed { get; }
         bool EditAllowed { get; }
         bool ViewAllowed { get; }
@@ -29,6 +24,8 @@ namespace DoomLauncher.Interfaces
         bool MoveFileOrderUp();
         bool MoveFileOrderDown();
         bool SetFileOrderFirst();
+        bool Export();
+        bool ExportAll();
 
         IGameFile GameFile { get; set; }
     }

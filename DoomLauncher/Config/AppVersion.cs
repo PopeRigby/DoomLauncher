@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DoomLauncher
+﻿namespace DoomLauncher
 {
     public enum AppVersion
     {
@@ -23,6 +17,14 @@ namespace DoomLauncher
         Version_2_6_3_1,
         Version_2_6_3_2,
         Version_2_6_4_1,
-        Version_2_6_4_1_Update1
+        Version_2_6_4_1_Update1,
+        Version_2_7_0_0,
+        Version_2_8_0_0,
+        Version_2_8_0_0_1,
+        Version_3_1_0,
+        Version_3_2_0,
+        Version_3_2_0_Update1,
+        Version_3_2_0_Update2,
+        Version_3_2_0_Update3,
     }
 }

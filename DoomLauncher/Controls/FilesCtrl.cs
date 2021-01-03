@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Reflection;
+using System.Text;
+using System.Windows.Forms;
 
 namespace DoomLauncher
 {
@@ -26,9 +23,16 @@ namespace DoomLauncher
         public FilesCtrl()
         {
             InitializeComponent();
+            dgvAdditionalFiles.BackgroundColor = SystemColors.Window;
             dgvAdditionalFiles.AutoGenerateColumns = false;
             dgvAdditionalFiles.RowHeadersVisible = false;
+            dgvAdditionalFiles.MultiSelect = false;
             dgvAdditionalFiles.CellFormatting += dgvAdditionalFiles_CellFormatting;
+
+            btnAdd.Image = Icons.File;
+            btnDelete.Image = Icons.Delete;
+            btnMoveUp.Image = Icons.ArrowUp;
+            btnMoveDown.Image = Icons.ArrowDown;
         }
 
         public void Initialize(string keyProperty, string dataProperty)
@@ -51,7 +55,7 @@ namespace DoomLauncher
             dgvAdditionalFiles.DataSource = dataSource;
 
             m_files.Clear();
-            foreach(DataGridViewRow dgvr in dgvAdditionalFiles.Rows)
+            foreach (DataGridViewRow dgvr in dgvAdditionalFiles.Rows)
                 m_files.Add(dgvr.DataBoundItem);
         }
 
@@ -59,7 +63,7 @@ namespace DoomLauncher
         {
             StringBuilder sb = new StringBuilder();
 
-            foreach(object file in m_files)
+            foreach (object file in m_files)
             {
                 PropertyInfo pi = file.GetType().GetProperty(m_dataProperty);
                 sb.Append(pi.GetValue(file).ToString());
@@ -94,33 +98,26 @@ namespace DoomLauncher
         private void btnAddFile_Click(object sender, EventArgs e)
         {
             AdditionalFilesEventArgs args = new AdditionalFilesEventArgs(null);
-            if (NewItemNeeded != null)
-                NewItemNeeded(this, args);
+            NewItemNeeded?.Invoke(this, args);
 
             if (args.NewItems != null)
             {
                 m_files.AddRange(args.NewItems);
                 Rebind();
+                if (dgvAdditionalFiles.Rows.Count > 0)
+                    dgvAdditionalFiles.Rows[dgvAdditionalFiles.Rows.Count - 1].Selected = true;
             }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            object item = SelectedItem;
-            if (item != null)
-            {
-                AdditionalFilesEventArgs cancelEvent = new AdditionalFilesEventArgs(item);
-                if (ItemRemoving != null)
-                    ItemRemoving(this, cancelEvent);
+            HandleDelete();
+        }
 
-                if (!cancelEvent.Cancel)
-                {
-                    m_files.Remove(item);
-                    Rebind();
-                    if (ItemRemoved != null)
-                        ItemRemoved(this, new AdditionalFilesEventArgs(item));
-                }
-            }
+        private void dgvAdditionalFiles_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+                HandleDelete();
         }
 
         private void btnMoveUp_Click(object sender, EventArgs e)
@@ -182,6 +179,32 @@ namespace DoomLauncher
             }
 
             return count;
+        }
+
+        private void HandleDelete()
+        {
+            object item = SelectedItem;
+            if (item != null)
+            {
+                int index = dgvAdditionalFiles.SelectedRows[0].Index;
+                AdditionalFilesEventArgs cancelEvent = new AdditionalFilesEventArgs(item);
+                ItemRemoving?.Invoke(this, cancelEvent);
+
+                if (!cancelEvent.Cancel)
+                {
+                    m_files.Remove(item);
+                    Rebind();
+
+                    if (dgvAdditionalFiles.Rows.Count > 0)
+                    {
+                        if (index >= dgvAdditionalFiles.Rows.Count)
+                            index = dgvAdditionalFiles.Rows.Count - 1;
+                        dgvAdditionalFiles.Rows[index].Selected = true;
+                    }
+
+                    ItemRemoved?.Invoke(this, new AdditionalFilesEventArgs(item));
+                }
+            }
         }
     }
 

@@ -1,10 +1,6 @@
 ﻿using DoomLauncher.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoomLauncher.DataSources
 {
@@ -18,6 +14,7 @@ namespace DoomLauncher.DataSources
         public SourcePortLaunchType LaunchType { get; set; }
         public string FileOption { get; set; }
         public string ExtraParameters { get; set; }
+        public LauncherPath AltSaveDirectory { get; set; }
 
         public string GetFullExecutablePath()
         {

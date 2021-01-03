@@ -1,9 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DoomLauncher;
 using DoomLauncher.Interfaces;
-using System.IO;
-using DoomLauncher;
-using DoomLauncher.DataSources;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -27,6 +24,7 @@ namespace UnitTest.Tests
                         SettingsFiles = "test" + i.ToString(),
                         SupportedExtensions = "test" + i.ToString(),
                         Directory = new LauncherPath(i.ToString()),
+                        AltSaveDirectory = new LauncherPath(i.ToString()),
                         LaunchType = i > 6 ? SourcePortLaunchType.Utility : SourcePortLaunchType.SourcePort,
                         ExtraParameters = "test" + i.ToString()
                     }
